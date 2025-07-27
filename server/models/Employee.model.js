@@ -68,12 +68,11 @@ const EmployeeSchema = new Schema({
             ref: "Notice"
         }
     ],
-    salary: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Salary"
-        }
-    ],
+    salary: {
+  type: Number,
+  required: true
+}
+    ,
     leaverequest: [
         {
             type: mongoose.Schema.Types.ObjectId,

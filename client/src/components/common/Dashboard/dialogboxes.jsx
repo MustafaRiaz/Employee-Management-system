@@ -15,7 +15,8 @@ import { useDispatch, useSelector } from "react-redux"
 import { FormSubmitToast } from "./Toasts.jsx"
 import { Loading } from "../loading.jsx"
 import { HandleDeleteHREmployees } from "../../../redux/Thunks/HREmployeesThunk.js"
-import { HandlePostHRDepartments, HandlePatchHRDepartments, HandleDeleteHRDepartments } from "../../../redux/Thunks/HRDepartmentPageThunk.js"
+import { HandlePostHRDepartments, HandleGetHRDepartments, HandlePatchHRDepartments, HandleDeleteHRDepartments } from "../../../redux/Thunks/HRDepartmentPageThunk.js"
+
 import { useToast } from "../../../hooks/use-toast.js"
 import {
     Command,
@@ -32,6 +33,9 @@ import { fetchEmployeesIDs } from "../../../redux/Thunks/EmployeesIDsThunk.js"
 
 export const AddEmployeesDialogBox = () => {
     const HREmployeesState = useSelector((state) => state.HREmployeesPageReducer)
+    const HRDepartmentState = useSelector((state) => state.HRDepartmentPageReducer); // Get department state
+    const dispatch = useDispatch();
+
     const [formdata, setformdata] = useState({
         firstname: "",
         lastname: "",
@@ -39,11 +43,22 @@ export const AddEmployeesDialogBox = () => {
         contactnumber: "",
         textpassword: "",
         password: "",
-    })
+        role: "",
+        salary: "",
+        department: "" // Add this
+    });
+
+    // Fetch departments on component mount
+    useEffect(() => {
+        dispatch(HandleGetHRDepartments({ apiroute: "GETALL" }));
+    }, [dispatch]);
+
 
     const handleformchange = (event) => {
         CommonStateHandler(formdata, setformdata, event)
     }
+
+    const departments = HRDepartmentState.data || []; // Ensure departments is an array
 
     return (
         <div className="AddEmployees-content">
@@ -75,11 +90,28 @@ export const AddEmployeesDialogBox = () => {
                                         onChange={handleformchange} />
                                 </div>
                                 <div className="label-input-field flex flex-col gap-1">
+                                    <label htmlFor="role" className="md:text-md lg:text-lg font-bold">Role</label>
+                                    <input type="text"
+                                        id="role"
+                                        className="border-2 border-gray-700 rounded px-2 py-1"
+                                        name="role"
+                                        value={formdata.role}
+                                        onChange={handleformchange} />
+                                </div>
+                                <div className="label-input-field flex flex-col gap-1">
                                     <label htmlFor="email" className="md:text-md lg:text-lg font-bold">Email</label>
                                     <input type="email"
                                         id="email" required={true} className="border-2 border-gray-700 rounded px-2 py-1"
                                         name="email"
                                         value={formdata.email}
+                                        onChange={handleformchange} />
+                                </div>
+                                <div className="label-input-field flex flex-col gap-1">
+                                    <label htmlFor="salary" className="md:text-md lg:text-lg font-bold">Salary</label>
+                                    <input type="salary"
+                                        id="salary" required={true} className="border-2 border-gray-700 rounded px-2 py-1"
+                                        name="salary"
+                                        value={formdata.salary}
                                         onChange={handleformchange} />
                                 </div>
                             </div>
@@ -92,6 +124,24 @@ export const AddEmployeesDialogBox = () => {
                                         value={formdata.contactnumber}
                                         onChange={handleformchange} />
                                 </div>
+                                <div className="label-input-field flex flex-col gap-1">
+                                    <label htmlFor="department" className="md:text-md lg:text-lg font-bold">Department</label>
+                                    <select
+                                        id="department"
+                                        name="department"
+                                        value={formdata.department}
+                                        onChange={handleformchange}
+                                        className="border-2 border-gray-700 rounded px-2 py-1"
+                                    >
+                                        <option value="">Select Department</option>
+                                        {departments.map((dept) => (
+                                            <option key={dept._id} value={dept._id}>
+                                                {dept.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
                                 <div className="label-input-field flex flex-col gap-1">
                                     <label htmlFor="text-password" className="md:text-md lg:text-lg font-bold">Password</label>
                                     <input type="text"

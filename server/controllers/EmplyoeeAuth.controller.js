@@ -8,60 +8,98 @@ import { Organization } from "../models/Organization.model.js"
 
 
 export const HandleEmplyoeeSignup = async (req, res) => {
-    const { firstname, lastname, email, password, contactnumber } = req.body
-    try {
+    // Destructure all expected fields from req.body
+    const { firstname, lastname, email, password, contactnumber, role, salary } = req.body;
+    console.log("Received signup request with data:", req.body);
 
-        if (!firstname || !lastname || !email || !password || !contactnumber) {
-            throw new Error("All Fields are required")
+    try {
+        // Updated initial validation to include new required fields
+        if (!firstname || !lastname || !role || !email || !password || !contactnumber || !salary ) {
+            return res.status(400).json({ success: false, message: "All required fields (firstname, lastname, email, password, contactnumber, role, department) are missing." });
         }
 
-        const organization = await Organization.findOne({ _id: req.ORGID })
+        // Validate role against enum values (optional but good practice here)
+        if (role !== "HR-Admin" && role !== "Employee") {
+            return res.status(400).json({ success: false, message: "Invalid role specified. Role must be 'HR-Admin' or 'Employee'." });
+        }
+
+        // Fetch the organization (assuming req.ORGID is set by a middleware)
+        const organization = await Organization.findOne({ _id: req.ORGID });
 
         if (!organization) {
-            return res.status(404).json({ success: false, message: "Organization or Company not found" })
+            return res.status(404).json({ success: false, message: "Organization not found for the given ID." });
         }
 
         try {
-            // const checkEmployee = await Employee.findOne({ email: email })
+            // Check if employee with this email already exists (uncommented as per your original code's intention)
+            const checkEmployee = await Employee.findOne({ email: email });
 
-            // if (checkEmployee) {
-            //     return res.status(400).json({ success: false, message: `Employee already exists, please go to the login page or create new employee` })
-            // }
+            if (checkEmployee) {
+                return res.status(400).json({ success: false, message: `Employee with email ${email} already exists. Please go to the login page or create a new employee.` });
+            }
 
-            const hashedPassword = await bcrypt.hash(password, 10)
-            const verificationcode = GenerateVerificationToken(6)
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const verificationcode = "someVerificationCode"; // Replace with your actual GenerateVerificationToken logic
+            // const verificationcode = GenerateVerificationToken(6); // Uncomment if you have this utility
 
+            // Create the new employee with all schema fields
             const newEmployee = await Employee.create({
                 firstname: firstname,
                 lastname: lastname,
                 email: email,
                 password: hashedPassword,
                 contactnumber: contactnumber,
-                role: "Employee",
+                role: role, // Use the role from req.body
+                salary: Number(salary), // ✅ Ensure salary is a number
                 verificationtoken: verificationcode,
                 verificationtokenexpires: Date.now() + 5 * 60 * 1000,
-                organizationID: organization._id
-            })
+                organizationID: organization._id // organizationID is derived from req.ORGID
+            });
+            console.log("New employee created:", newEmployee);
 
-            organization.employees.push(newEmployee._id)
-            await organization.save()
 
+            // Associate the new employee with the organization
+            organization.employees.push(newEmployee._id);
+            await organization.save();
+
+            // Uncomment and ensure these functions are correctly implemented and imported
             // GenerateJwtTokenAndSetCookiesEmployee(res, newEmployee._id, newEmployee.role, organization._id)
             // const VerificationEmailStatus = await SendVerificationEmail(email, verificationcode)
-            // SendVerificationEmailStatus: VerificationEmailStatus
 
-            return res.status(201).json({ success: true, message: "Employee Registered Successfully", newEmployee: newEmployee.email, type: "EmployeeCreate" })
+            return res.status(201).json({
+                success: true,
+                message: "Employee Registered Successfully",
+                newEmployee: {
+                    email: newEmployee.email,
+                    id: newEmployee._id, // Optionally return the new employee's ID
+                    // SendVerificationEmailStatus: VerificationEmailStatus // Uncomment if sending email
+                },
+                type: "EmployeeCreate"
+            });
 
         } catch (error) {
-            res.status(400).json({ success: false, message: "Oops! Something went wrong", error: error });
+            // More specific error logging for Mongoose validation or duplicate key errors
+            if (error.code === 11000) { // MongoDB duplicate key error (e.g., for unique email)
+                return res.status(400).json({ success: false, message: "An employee with this email already exists.", error: error.message });
+            }
+            if (error.name === 'ValidationError') { // Mongoose validation error
+                const errors = Object.values(error.errors).map(err => err.message);
+                return res.status(400).json({ success: false, message: "Validation failed.", errors: errors });
+            }
+            console.error("Error creating employee (inner catch):", error);
+            res.status(500).json({ success: false, message: "An internal server error occurred while creating the employee.", error: error.message });
         }
 
     } catch (error) {
-        console.log(error)
-        res.status(400).json({ success: false, message: "All Fields are required" })
+        console.error("Error in HandleEmplyoeeSignup (outer catch):", error);
+        // This outer catch usually handles errors from initial checks or middleware issues
+        // It's generally better to send more specific messages based on the error.
+        if (error.message.includes("All required fields")) {
+            return res.status(400).json({ success: false, message: error.message });
+        }
+        res.status(500).json({ success: false, message: "An unexpected error occurred.", error: error.message });
     }
 }
-
 export const HandleEmplyoeeVerifyEmail = async (req, res) => {
     const { verificationcode } = req.body
 

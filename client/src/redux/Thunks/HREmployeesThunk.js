@@ -17,15 +17,15 @@ export const HandleGetHREmployees = createAsyncThunk('HandleGetHREmployees', asy
 }) 
 
 export const HandlePostHREmployees = createAsyncThunk('HandlePostHREmploy', async (HREmployeeData, { rejectWithValue }) => {
-    try {
-        const { apiroute, data } = HREmployeeData
-        const response = await apiService.post(`${HREmployeesPageEndPoints[apiroute]}`, data, {
-            withCredentials: true
-        })
-        return response.data
-    } catch (error) {
-        return rejectWithValue(error.response.data);
-    }
+    try {
+        const { apiroute, data } = HREmployeeData
+        const response = await apiService.post(`${HREmployeesPageEndPoints[apiroute]}`, data, {
+            withCredentials: true
+        })
+        return response.data
+    } catch (error) {
+        return rejectWithValue(error.response.data); // <--- THIS IS THE LINE IN QUESTION
+    }
 })
 
 export const HandleDeleteHREmployees = createAsyncThunk("HandleDeleteHREmployees", async (HREmployeeData, { rejectWithValue }) => {
