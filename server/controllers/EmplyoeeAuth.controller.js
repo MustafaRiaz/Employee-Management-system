@@ -39,8 +39,8 @@ export const HandleEmplyoeeSignup = async (req, res) => {
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
-            const verificationcode = "someVerificationCode"; // Replace with your actual GenerateVerificationToken logic
-            // const verificationcode = GenerateVerificationToken(6); // Uncomment if you have this utility
+            // const verificationcode = "123456"; // Replace with your actual GenerateVerificationToken logic
+            const verificationcode = GenerateVerificationToken(6); // Uncomment if you have this utility
 
             // Create the new employee with all schema fields
             const newEmployee = await Employee.create({

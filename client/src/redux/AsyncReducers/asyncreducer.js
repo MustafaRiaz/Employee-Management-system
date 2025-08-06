@@ -151,6 +151,40 @@ export const HRDashboardAsyncReducer = (builder, thunk) => {
     })
 }
 
+// employeereducer.js
+
+const initialState = {
+    isAuthenticated: false,
+    data: {},
+    loading: false,
+    error: { status: false, message: "" },
+};
+
+export const employeeReducer = (state = initialState, action) => {
+    switch (action.type) {
+        case "handlePostEmployees/pending":
+            return { ...state, loading: true };
+        case "handlePostEmployees/fulfilled":
+            return {
+                ...state,
+                isAuthenticated: true,
+                data: action.payload.data,
+                loading: false,
+                error: { status: false, message: "" },
+            };
+        case "handlePostEmployees/rejected":
+            return { ...state, loading: false, error: { status: true, message: action.payload.message } };
+        case "handleGetEmployeeProfile/fulfilled":
+            return {
+                ...state,
+                data: action.payload.data,
+                loading: false,
+            };
+        default:
+            return state;
+    }
+};
+
 export const HREmployeesPageAsyncReducer = (builder, thunk) => {
     builder.addCase(thunk.pending, (state) => {
         state.isLoading = true;

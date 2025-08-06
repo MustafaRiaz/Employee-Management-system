@@ -43,9 +43,9 @@ export const AddEmployeesDialogBox = () => {
         contactnumber: "",
         textpassword: "",
         password: "",
-        role: "",
+        role: "Employee",
         salary: "",
-        department: "" // Add this
+        department: "Computer Science" // Add this
     });
 
     // Fetch departments on component mount
@@ -89,7 +89,7 @@ export const AddEmployeesDialogBox = () => {
                                         value={formdata.lastname}
                                         onChange={handleformchange} />
                                 </div>
-                                <div className="label-input-field flex flex-col gap-1">
+                                {/* <div className="label-input-field flex flex-col gap-1">
                                     <label htmlFor="role" className="md:text-md lg:text-lg font-bold">Role</label>
                                     <input type="text"
                                         id="role"
@@ -97,7 +97,7 @@ export const AddEmployeesDialogBox = () => {
                                         name="role"
                                         value={formdata.role}
                                         onChange={handleformchange} />
-                                </div>
+                                </div> */}
                                 <div className="label-input-field flex flex-col gap-1">
                                     <label htmlFor="email" className="md:text-md lg:text-lg font-bold">Email</label>
                                     <input type="email"
@@ -124,7 +124,7 @@ export const AddEmployeesDialogBox = () => {
                                         value={formdata.contactnumber}
                                         onChange={handleformchange} />
                                 </div>
-                                <div className="label-input-field flex flex-col gap-1">
+                                {/* <div className="label-input-field flex flex-col gap-1">
                                     <label htmlFor="department" className="md:text-md lg:text-lg font-bold">Department</label>
                                     <select
                                         id="department"
@@ -140,7 +140,7 @@ export const AddEmployeesDialogBox = () => {
                                             </option>
                                         ))}
                                     </select>
-                                </div>
+                                </div> */}
 
                                 <div className="label-input-field flex flex-col gap-1">
                                     <label htmlFor="text-password" className="md:text-md lg:text-lg font-bold">Password</label>

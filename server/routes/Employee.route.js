@@ -1,12 +1,21 @@
 import express from "express"
-import { HandleAllEmployees, HandleEmployeeUpdate, HandleEmployeeDelete, HandleEmployeeByHR, HandleEmployeeByEmployee, HandleAllEmployeesIDS } from "../controllers/Employee.controller.js"
-import { VerifyhHRToken } from "../middlewares/Auth.middleware.js"
+import { 
+    HandleAllEmployees, 
+    HandleEmployeeUpdate, 
+    HandleEmployeeDelete, 
+    HandleEmployeeByHR, 
+    HandleEmployeeByEmployee, 
+    HandleAllEmployeesIDS,
+    HandleGenerateEmployeeReport // <--- Import the new handler here
+} from "../controllers/Employee.controller.js" // Ensure this path is correct
+
+import { VerifyhHRToken } from "../middlewares/Auth.middleware.js" // Assuming this sets req.ORGID
 import { RoleAuthorization } from "../middlewares/RoleAuth.middleware.js"
 import { VerifyEmployeeToken } from "../middlewares/Auth.middleware.js"
 
 const router = express.Router()
 
-
+// Existing routes
 router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllEmployees)
 
 router.get("/all-employees-ids", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllEmployeesIDS)
@@ -19,6 +28,9 @@ router.get("/by-HR/:employeeId", VerifyhHRToken, RoleAuthorization("HR-Admin"), 
 
 router.get("/by-employee", VerifyEmployeeToken, HandleEmployeeByEmployee)
 
+// New route for PDF report generation
+// We'll typically protect this with HR-Admin role as well
+router.get("/report-pdf", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleGenerateEmployeeReport) // <--- New route added here
 
 
 export default router

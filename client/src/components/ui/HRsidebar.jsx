@@ -70,12 +70,12 @@ export function HRdashboardSidebar() {
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
 
-                            <SidebarMenuItem className="my-1">
+                            {/* <SidebarMenuItem className="my-1">
                                 <SidebarMenuButton className="gap-4">
                                     <img src="/../../src/assets/HR-Dashboard/notice.png" alt="" className="w-7" />
                                     <button className="text-[16px]">Issue Notices</button>
                                 </SidebarMenuButton>
-                            </SidebarMenuItem>
+                            </SidebarMenuItem> */}
 
                             <SidebarMenuItem className="my-1">
                                 <SidebarMenuButton className="gap-4">
@@ -87,26 +87,26 @@ export function HRdashboardSidebar() {
                             
 
 
-                            <SidebarMenuItem className="my-1">
+                            {/* <SidebarMenuItem className="my-1">
                                 <SidebarMenuButton className="gap-4">
                                     <img src="/../../src/assets/HR-Dashboard/recruitment.png" alt="" className="w-7" />
                                     <button className="text-[16px]">Recruitment</button>
                                 </SidebarMenuButton>
-                            </SidebarMenuItem>
+                            </SidebarMenuItem> */}
 
-                            <SidebarMenuItem className="my-1">
+                            {/* <SidebarMenuItem className="my-1">
                                 <SidebarMenuButton className="gap-4">
                                     <img src="/../../src/assets/HR-Dashboard/interview-insights.png" alt="" className="w-7" />
                                     <button className="text-[16px]">Interview Insights</button>
                                 </SidebarMenuButton>
-                            </SidebarMenuItem>
+                            </SidebarMenuItem> */}
 
-                            <SidebarMenuItem className="my-1">
+                            {/* <SidebarMenuItem className="my-1">
                                 <SidebarMenuButton className="gap-4">
                                     <img src="/../../src/assets/HR-Dashboard/request.png" alt="" className="w-7" />
                                     <button className="text-[16px]">Requests</button>
                                 </SidebarMenuButton>
-                            </SidebarMenuItem>
+                            </SidebarMenuItem> */}
 
                             <SidebarMenuItem className="my-1">
                                 <SidebarMenuButton className="gap-4">
