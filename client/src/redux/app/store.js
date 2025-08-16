@@ -5,6 +5,9 @@ import DashbaordReducer from "../Slices/DashboardSlice.js"
 import HREmployeesPageReducer from '../Slices/HREmployeesPageSlice.js'
 import HRDepartmentPageReducer from '../Slices/HRDepartmentPageSlice.js'
 import EMployeesIDReducer from '../Slices/EmployeesIDsSlice.js'
+import hrProfileReducer from '../Slices/hrProfileSlice.js' 
+// IMPORT THE NEW EMPLOYEE PROFILE REDUCER HERE
+import employeeProfileReducer from '../Slices/employeeProfileSlice.js'
 
 export const store = configureStore({
     reducer: {
@@ -13,6 +16,10 @@ export const store = configureStore({
         dashboardreducer: DashbaordReducer,
         HREmployeesPageReducer : HREmployeesPageReducer,
         HRDepartmentPageReducer : HRDepartmentPageReducer,
-        EMployeesIDReducer : EMployeesIDReducer
+        EMployeesIDReducer : EMployeesIDReducer,
+        // HR Profile Reducer
+        hrProfile: hrProfileReducer,
+        // ADD THE NEW EMPLOYEE PROFILE REDUCER HERE
+        employeeProfile: employeeProfileReducer,
     }
 })

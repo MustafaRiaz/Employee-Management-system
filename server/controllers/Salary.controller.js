@@ -1,127 +1,115 @@
-import { Employee } from "../models/Employee.model.js"
-import { Salary } from "../models/Salary.model.js"
+import { Salary } from "../models/Salary.model.js";
+import { Employee } from "../models/Employee.model.js";
 
-export const HandleCreateSalary = async (req, res) => {
+// Create salary record
+export const createSalary = async (req, res) => {
+    // 🐛 DEBUG: Log the entire request body to see what the frontend is sending.
+    console.log("🐛 [DEBUG] createSalary: Request body received:", req.body);
+
     try {
-        const { employeeID, basicpay, bonusePT, deductionPT, duedate, currency } = req.body
+        // NOTE: Corrected variable name from employeeId to employee based on your frontend code
+        const { employee, bonuses, deductions, currency, duedate } = req.body;
 
-        if (!employeeID || !basicpay || !bonusePT || !deductionPT || !duedate || !currency) {
-            return res.status(400).json({ success: false, message: "All fields are required" })
+        // 🐛 DEBUG: Log the extracted variables.
+        console.log("🐛 [DEBUG] Extracted fields: employee=", employee, ", bonuses=", bonuses, ", duedate=", duedate);
+
+        // 1. Fetch employee
+        // 🐛 DEBUG: Log the ID being used to find the employee.
+        console.log("🐛 [DEBUG] Attempting to find employee with ID:", employee);
+        const employeeRecord = await Employee.findById(employee);
+
+        // 🐛 DEBUG: Log if the employee was found.
+        if (!employeeRecord) {
+            console.error("🐛 [ERROR] Employee not found for ID:", employee);
+            return res.status(404).json({ message: "Employee not found" });
         }
+        console.log("✅ [SUCCESS] Employee found:", employeeRecord.firstname, employeeRecord.lastname);
 
-        const employee = await Employee.findById(employeeID)
+        const basicpay = employeeRecord.salary;
+        const netpay = basicpay + bonuses - deductions;
 
-        if (!employee) {
-            return res.status(404).json({ success: false, message: "Employee not found" })
-        }
+        // 🐛 DEBUG: Log the calculated values.
+        console.log("🐛 [DEBUG] Calculated values: basicpay=", basicpay, ", netpay=", netpay);
 
-        const bonuses = (basicpay * bonusePT) / 100
-        const deductions = (basicpay * deductionPT) / 100
-        const netpay = (basicpay + bonuses) - deductions
+        // 2. Create salary entry
+        const newSalary = new Salary({
+            employee: employeeRecord._id,
+            basicpay,
+            bonuses,
+            deductions,
+            netpay,
+            currency,
+            duedate,
+            status: "Pending",
+            organizationID: employeeRecord.organizationID
+        });
 
-        const salarycheck = await Salary.findOne({
-            employee: employeeID,
-            basicpay: basicpay,
-            bonuses: bonuses,
-            deductions: deductions,
-            netpay: netpay,
-            currency: currency,
-            duedate: new Date(duedate),
-        })
+        // 🐛 DEBUG: Log the new salary object before it is saved.
+        console.log("🐛 [DEBUG] New salary object to be saved:", newSalary);
+        await newSalary.save();
+        console.log("✅ [SUCCESS] New salary record saved to database:", newSalary._id);
 
-        if (salarycheck) {
-            return res.status(400).json({ success: false, message: "Particular salary record already exists for this employee" })
-        }
+        // 3. Populate employee name
+        const populatedSalary = await Salary.findById(newSalary._id)
+            .populate("employee", "firstname lastname email");
 
-        const salary = await Salary.create({
-            employee: employeeID,
-            basicpay: basicpay,
-            bonuses: bonuses,
-            deductions: deductions,
-            netpay: netpay,
-            currency: currency,
-            duedate: new Date(duedate),
-            organizationID: req.ORGID
-        })
+        // 🐛 DEBUG: Log the final populated object before sending the response.
+        console.log("✅ [SUCCESS] Populated salary record for response:", populatedSalary);
 
-        employee.salary.push(salary._id)
-        await employee.save()
-
-        return res.status(200).json({ success: true, message: "Salary created successfully", data: salary })
-
+        res.status(201).json({
+            message: "Salary record created successfully",
+            salary: populatedSalary
+        });
     } catch (error) {
-        return res.status(500).json({ success: false, message: error.message })
+        // 🐛 DEBUG: Log a detailed error message if anything fails.
+        console.error("❌ [ERROR] Error creating salary:", error.message, "\nStack Trace:", error.stack);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
-}
+};
 
-export const HandleAllSalary = async (req, res) => {
+// Get all salaries (Admin)
+export const getAllSalaries = async (req, res) => {
     try {
-        const salary = await Salary.find({ organizationID: req.ORGID }).populate("employee", "firstname lastname department")
-        return res.status(200).json({ success: true, message: "All salary records retrieved successfully", data: salary })
+        const salaries = await Salary.find()
+            .populate("employee", "firstname lastname email")
+            .sort({ duedate: -1 });
 
+        res.json(salaries);
     } catch (error) {
-        return res.status(500).json({ success: false, error: error, message: "Internal Server Error" })
+        res.status(500).json({ message: "Failed to fetch salaries", error });
     }
-}
+};
 
-export const HandleSalary = async (req, res) => {
+// Get salaries by employee (Employee panel)
+export const getSalariesByEmployee = async (req, res) => {
     try {
-        const { salaryID } = req.params
-        const salary = await Salary.findOne({ _id: salaryID, organizationID: req.ORGID }).populate("employee", "firstname lastname department")
-        return res.status(200).json({ success: true, message: "salary found", data: salary })
-    } catch (error) {
-        return res.status(500).json({ success: false, error: error, message: "Internal Server Error" })
-    }
-}
+        const { employeeId } = req.params;
 
-export const HandleUpdateSalary = async (req, res) => {
-    const { salaryID, basicpay, bonusePT, deductionPT, duedate, currency, status } = req.body
+        const salaries = await Salary.find({ employee: employeeId })
+            .populate("employee", "firstname lastname email")
+            .sort({ duedate: -1 });
+
+        res.json(salaries);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch employee salaries", error });
+    }
+};
+
+// Mark salary as paid
+export const markSalaryPaid = async (req, res) => {
     try {
+        const { salaryId } = req.params;
 
-        const bonuses = (basicpay * bonusePT) / 100
-        const deductions = (basicpay * deductionPT) / 100
-        const netpay = (basicpay + bonuses) - deductions
+        const salary = await Salary.findById(salaryId);
+        if (!salary) return res.status(404).json({ message: "Salary not found" });
 
-        const salary = await Salary.findByIdAndUpdate(salaryID, {
-            basicpay: basicpay,
-            bonuses: bonuses,
-            deductions: deductions,
-            netpay: netpay,
-            currency: currency,
-            duedate: new Date(duedate),
-            status: status
-        }, { new: true })
+        salary.status = "Paid";
+        salary.paymentdate = new Date();
 
-        if (!salary) {
-            return res.status(404).send({ success: false, message: "Salary record does not found" })
-        }
+        await salary.save();
 
-        return res.status(200).json({ success: true, message: "Salary updated successfully", data: salary })
-
+        res.json({ message: "Salary marked as paid", salary });
     } catch (error) {
-        return res.status(500).json({ success: false, message: "Something went wrong", error: error })
+        res.status(500).json({ message: "Failed to update salary", error });
     }
-}
-
-export const HandleDeleteSalary = async (req, res) => {
-    try {
-        const { salaryID } = req.params
-        const salary = await Salary.findOne({ _id: salaryID, organizationID: req.ORGID })
-
-        if (!salary) {
-            return res.status(404).json({ success: false, message: "Salary record not found" })
-        }
-
-        const employee = await Employee.findById(salary.employee)
-        employee.salary.splice(employee.salary.indexOf(salaryID), 1)
-
-        await employee.save()
-        await salary.deleteOne()
-
-        return res.status(200).json({ success: true, message: "Salary deleted successfully" })
-
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({ success: false, error: error, message: "Error deleting" })
-    }
-}
+};

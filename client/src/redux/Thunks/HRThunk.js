@@ -15,6 +15,21 @@ export const HandleGetHumanResources = createAsyncThunk("HandleGetHumanResources
     }
 })
 
+export const fetchHRProfile = createAsyncThunk(
+    "hrProfile/fetchHRProfile",
+    async (_, { rejectWithValue }) => {
+        try {
+            // Use the correct full URL here
+            const response = await apiService.get('/api/v1/HR/me', {
+                withCredentials: true
+            });
+            // The API response returns an object with a 'data' key
+            return response.data.data;
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
 
 export const HandlePostHumanResources = createAsyncThunk("HandlePostHumanResources", async (HRData, { rejectWithValue }) => {
     try {

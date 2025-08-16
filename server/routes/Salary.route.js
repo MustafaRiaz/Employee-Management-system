@@ -1,17 +1,40 @@
-import express from 'express'
-import { HandleCreateSalary, HandleAllSalary, HandleSalary, HandleUpdateSalary, HandleDeleteSalary } from '../controllers/Salary.controller.js'
-import { VerifyhHRToken } from '../middlewares/Auth.middleware.js'
-import { RoleAuthorization } from '../middlewares/RoleAuth.middleware.js'
-const router = express.Router()
+// import express from 'express'
+// import { HandleCreateSalary, HandleAllSalary, HandleSalary, HandleUpdateSalary, HandleDeleteSalary } from '../controllers/Salary.controller.js'
+// import { VerifyhHRToken } from '../middlewares/Auth.middleware.js'
+// import { RoleAuthorization } from '../middlewares/RoleAuth.middleware.js'
+// const router = express.Router()
 
-router.post("/create-salary", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleCreateSalary)
+// router.post("/create-salary", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleCreateSalary)
 
-router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllSalary)
+// router.get("/all", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleAllSalary)
 
-router.get("/:salaryID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleSalary)
+// router.get("/:salaryID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleSalary)
 
-router.patch("/update-salary", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleUpdateSalary)
+// router.patch("/update-salary", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleUpdateSalary)
 
-router.delete("/delete-salary/:salaryID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleDeleteSalary)
+// router.delete("/delete-salary/:salaryID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleDeleteSalary)
 
-export default router
+// export default router
+import express from "express";
+import {
+    createSalary,
+    getAllSalaries,
+    getSalariesByEmployee,
+    markSalaryPaid
+} from "../controllers/Salary.controller.js";
+
+const router = express.Router();
+
+// Create a new salary record
+router.post("/create", createSalary);
+
+// Admin - Get all salaries
+router.get("/all", getAllSalaries);
+
+// Employee - Get salaries by employee ID
+router.get("/employee/:employeeId", getSalariesByEmployee);
+
+// Admin - Mark salary as paid
+router.put("/pay/:salaryId", markSalaryPaid);
+
+export default router;

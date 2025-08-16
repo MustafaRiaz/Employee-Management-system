@@ -11,6 +11,36 @@ export const HandleAllHR = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error })
     }
 }
+// ... (other imports and controller functions)
+
+// ... (other imports and controller functions)
+
+export const HandleMyProfile = async (req, res) => {
+    try {
+        // CORRECTED: Use the correct property from the middleware
+        const HRID = req.HRid;
+
+        if (!HRID) {
+            // This should only happen if the token is invalid or missing
+            return res.status(401).json({ success: false, message: "Authentication failed. User ID not found." });
+        }
+        
+        // Find the HR user using the now-correct ID and populate the department
+        const HR = await HumanResources.findById(HRID).populate("department");
+
+        if (!HR) {
+            return res.status(404).json({ success: false, message: "HR Profile Not Found" });
+        }
+
+        // Return all profile data
+        return res.status(200).json({ success: true, message: "HR Profile Found Successfully", data: HR });
+
+    } catch (error) {
+        console.error("Error in HandleMyProfile:", error);
+        // Changed the error response to be more informative in case of a crash
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+}
 
 export const HandleHR = async (req, res) => {
     try {

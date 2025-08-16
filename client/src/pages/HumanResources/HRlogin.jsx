@@ -38,7 +38,7 @@ export const HRLogin = () => {
 
         if (HRState.isAuthenticated) {
             loadingbar.current.complete()
-            navigate("/HR/dashboard/dashboard-data")
+            navigate("/HR/dashboard");
         }
     }, [HRState.isAuthenticated])
 

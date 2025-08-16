@@ -185,6 +185,8 @@ export const employeeReducer = (state = initialState, action) => {
     }
 };
 
+
+
 export const HREmployeesPageAsyncReducer = (builder, thunk) => {
     builder.addCase(thunk.pending, (state) => {
         state.isLoading = true;

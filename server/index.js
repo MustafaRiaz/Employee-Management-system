@@ -13,7 +13,7 @@ import DashboardRouter from './routes/Dashbaord.route.js';
 import EmployeeRouter from './routes/Employee.route.js';
 import HRRouter from './routes/HR.route.js';
 import DepartmentRouter from './routes/Department.route.js';
-import SalaryRouter from './routes/Salary.route.js';
+import salaryRoutes from "./routes/Salary.route.js"; // Adjust path if needed
 import NoticeRouter from "./routes/Notice.route.js";
 import LeaveRouter from './routes/Leave.route.js';
 import AttendanceRouter from './routes/Attendance.route.js'; // keep this one only
@@ -42,8 +42,9 @@ app.use("/api/auth/HR", HRAuthrouter);
 app.use("/api/v1/dashboard", DashboardRouter);
 app.use("/api/v1/employee", EmployeeRouter);
 app.use("/api/v1/HR", HRRouter);
+app.use("/api/salaries", salaryRoutes);
 app.use("/api/v1/department", DepartmentRouter);
-app.use("/api/v1/salary", SalaryRouter);
+// app.use("/api/v1/salary", SalaryRouter);
 app.use("/api/v1/notice", NoticeRouter);
 app.use("/api/v1/leave", LeaveRouter);
 app.use('/api/attendance', AttendanceRouter);
