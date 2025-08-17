@@ -13,7 +13,9 @@ router.get("/:HRID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleHR)
 
 router.patch("/update-HR", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleUpdateHR)
 
-router.delete("/delete-HR/:HRID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleDeleteHR) 
+router.delete("/delete-HR/:HRID", VerifyhHRToken, RoleAuthorization("HR-Admin"), HandleDeleteHR)
+
+
 // router.get("/me/test", HandleMyProfile);
 
 

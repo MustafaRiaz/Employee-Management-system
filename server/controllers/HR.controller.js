@@ -112,3 +112,14 @@ export const HandleDeleteHR = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal Server Error", error: error })
     }
 }
+
+// controllers/logout.controller.js
+export const logout = (req, res) => {
+  res.clearCookie("authToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // only secure in prod
+    sameSite: "strict",
+  });
+
+  return res.status(200).json({ message: "Logged out successfully" });
+};

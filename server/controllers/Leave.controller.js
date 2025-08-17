@@ -48,13 +48,30 @@ export const HandleCreateLeave = async (req, res) => {
 }
 
 export const HandleAllLeaves = async (req, res) => {
-    try {
-        const leaves = await Leave.find({ organizationID: req.ORGID }).populate("employee approvedby", "firstname lastname department")
-        return res.status(200).json({ success: true, message: "All leave records retrieved successfully", data: leaves })
-    } catch (error) {
-        return res.status(500).json({ success: false, message: "Internal server error" })
-    }
-}
+  try {
+    // Only HR-Admin can access (middleware already checks this)
+    const orgID = req.ORGID; // from VerifyhHRToken
+
+    // Get all leaves for this organization
+    const leaves = await Leave.find({ organizationID: orgID })
+      .populate("employee", "firstname lastname email department") // 🔥 show employee details
+      .populate("approvedby", "firstname lastname email") // show HR who approved
+      .sort({ createdAt: -1 }); // latest first
+
+    return res.status(200).json({
+      success: true,
+      count: leaves.length,
+      leaves,
+    });
+  } catch (error) {
+    console.error("Error fetching leaves:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch leave requests",
+      error: error.message,
+    });
+  }
+};
 
 export const HandleLeave = async (req, res) => {
     try {
@@ -99,34 +116,43 @@ export const HandleUpdateLeaveByEmployee = async (req, res) => {
 }
 
 export const HandleUpdateLeavebyHR = async (req, res) => {
-    try {
-        const { leaveID, status, HRID } = req.body
+  try {
+    const { leaveID, status } = req.body;
 
-        if (!leaveID || !status || !HRID) {
-            return res.status(400).json({ success: false, message: "All fields are required" })
-        }
-
-        const leave = await Leave.findOne({ _id: leaveID, organizationID: req.ORGID })
-        const HR = await HumanResources.findById(HRID)
-
-        if (!leave) {
-            return res.status(404).json({ success: false, message: "Leave record not found" })
-        }
-
-        if (!HR) {
-            return res.status(404).json({ success: false, message: "HR not found" })
-        }
-
-        leave.status = status
-        leave.approvedby = HRID
-
-        await leave.save()
-        return res.status(200).json({ success: true, message: "Leave record updated successfully", data: leave })
-    } catch (error) {
-        return res.status(500).json({ success: false, message: "Internal server error" })
+    if (!leaveID || !status) {
+      return res.status(400).json({ success: false, message: "LeaveID and status are required" });
     }
-}
 
+    // ✅ Only update status + approvedby
+    const updatedLeave = await Leave.findByIdAndUpdate(
+      leaveID,
+      { 
+        status,
+        approvedby: req.HRid, // HR who approved/rejected
+      },
+      { new: true }
+    )
+    .populate("employee", "firstname lastname email department")
+    .populate("approvedby", "firstname lastname email");
+
+    if (!updatedLeave) {
+      return res.status(404).json({ success: false, message: "Leave request not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Leave ${status.toLowerCase()} successfully`,
+      leave: updatedLeave
+    });
+  } catch (error) {
+    console.error("Error updating leave:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update leave request",
+      error: error.message
+    });
+  }
+};
 export const HandleDeleteLeave = async (req, res) => {
     try {
         const { leaveID } = req.params

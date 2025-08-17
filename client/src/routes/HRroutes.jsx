@@ -9,6 +9,8 @@ import { ResetHRVerifyEmailPage } from "../pages/HumanResources/resetemail.jsx";
 import { HRDashboardPage } from "../pages/HumanResources/Dashboard Childs/dashboardpage.jsx";
 import { HREmployeesPage } from "../pages/HumanResources/Dashboard Childs/employeespage.jsx";
 import { HRDepartmentPage } from "../pages/HumanResources/Dashboard Childs/departmentpage.jsx";
+import {HRLeaveRequests} from "../pages/HumanResources/Dashboard Childs/HRLeaveRequests.jsx";
+
 import Attendance from "../pages/HumanResources/Dashboard Childs/attendance.jsx";
 import SalaryManagement from "../pages/HumanResources/Dashboard Childs/salarymanagement.jsx";
 import HRProfile from "../pages/HumanResources/Dashboard Childs/HRProfile.jsx";
@@ -72,6 +74,10 @@ export const HRRoutes = [
       {
         path: "salaries",
         element: <SalaryManagement />,
+      },
+      {
+        path: "leaves",
+        element: <HRLeaveRequests />,
       },
       {
         path: "hrprofile",
